@@ -1,0 +1,39 @@
+ccf_algorithm: ccube
+matrix_algorithm: nmf
+
+input_dir: ../for_project_10/data
+output_dir: ./out
+
+pyclone_params:
+  base_measure_params: {alpha: 1, beta: 1}
+  beta_binomial_precision_params:
+    prior: {rate: 0.001, shape: 1.0}
+    proposal: {precision: 0.01}
+    value: 1000
+  concentration:
+    prior: {rate: 0.001, shape: 1.0}
+    value: 1.0
+  density: pyclone_beta_binomial
+  num_iters: 100
+  samples:
+    SAMPLE_NAME: 
+      error_rate: 0.001
+      mutations_file: MUTATIONS_FILE
+      tumour_content: {value: TUMOUR_PURITY}
+  trace_dir: trace
+  working_dir: WORKING_DIR
+
+ccube_params:
+  parameters for ccube here
+
+phylowgs_params:
+  parameters for phylowgs here
+
+nmf_params:
+  parameters for nmf here
+
+lda_params:
+  parameters for nmf here
+
+classifier_params:
+  bin10 classifier parameters here
