@@ -7,14 +7,17 @@ from sklearn.decomposition import NMF
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from common import *
+
 P = os.path
 
 
 # Class for Non-Negative Matrix Factorization of classified mutation data
 class NMFModeler:
 
+    # Constructor take a single argument, a dictionary of arguments parsed from config file.
     def __init__(self, args):
-        self.args = args
+        self.args = args['nmf_params']
         self.W = None
         self.H = None
 
@@ -27,11 +30,13 @@ class NMFModeler:
     def verify_args(self):
         return
 
+    # Build a list of topic names from number of topics.
     def build_topic_names(self):
         self.topic_names = []
         for i in range(1, self.num_topics + 1):
             self.topic_names.append("Topic " + str(i))
 
+    # Run NMF to extract topics from classified data.
     def extract_topics_from_classified_data(self, classifier):
         rows = []
         num_samples = 0
@@ -46,7 +51,11 @@ class NMFModeler:
 
         data_matrix = np.array(rows)
 
-        self.num_topics = int(math.floor(math.sqrt(num_samples)))
+        if "num_topics" in self.args:
+            self.num_topics = self.args['num_topics']
+        else:
+            self.num_topics = int(math.floor(math.sqrt(num_samples)))
+
         if self.num_topics < 2:
             self.num_topics = 2
 
@@ -58,57 +67,26 @@ class NMFModeler:
 
         return
 
-    @staticmethod
-    def write_matrix_as_tsv(matrix, x_labels, y_labels, out_file_path):
-
-        table = matrix.tolist()
-        rows = matrix.shape[0]
-
-        with open(out_file_path, "wb+") as out_file:
-            writer = csv.writer(out_file, delimiter='\t')
-            header = copy.copy(x_labels)
-            header.insert(0, '')
-            writer.writerow(header)
-
-            for i in range(0, rows):
-                row = table[i]
-                row.insert(0, y_labels[i])
-                writer.writerow(row)
-        return
-
-    #TODO: ValueError: Image size of 125000x2000 pixels is too large. It must be less than 2^16 in each direction.
-    @staticmethod
-    def write_matrix_as_heatmap(matrix, x_labels, y_labels, out_file_path):
-        sns.set(font_scale=2.2)
-        sns.set_style({"savefig.dpi": 100})
-
-        figure_width_inches = int(math.floor(len(x_labels) / 2)) * 5
-        figure_height_inches = int(math.floor(math.sqrt(len(y_labels)))) * 5
-
-        ax = sns.heatmap(matrix,
-                         xticklabels=x_labels,
-                         yticklabels=y_labels,
-                         annot=True,
-                         fmt=".2f",
-                         cmap="Reds")
-        ax.xaxis.tick_top()
-
-        figure = ax.get_figure()
-        figure.set_size_inches(figure_width_inches, figure_height_inches)
-        figure.savefig(out_file_path)
-        return
-
+    # Write output TSVs, barplot, and heatmaps of NMF classified data.
     def write_output(self, out_dir_path):
 
-        #plt.ion()
-        self.write_matrix_as_tsv(self.W, self.topic_names, self.class_names, P.join(out_dir_path, "nmf_W.tsv"))
-        self.write_matrix_as_heatmap(self.W, self.topic_names, self.class_names,
-                                     P.join(out_dir_path, "nmf_W_heatmap.png"))
+        w_tsv_path = P.join(out_dir_path, "nmf_W.tsv")
+        h_tsv_path = P.join(out_dir_path, "nmf_H.tsv")
 
-        self.write_matrix_as_tsv(self.H, self.sample_names, self.topic_names, P.join(out_dir_path, "nmf_H.tsv"))
-        self.write_matrix_as_heatmap(self.H, self.sample_names, self.topic_names,
-                                     P.join(out_dir_path, "nmf_H_heatmap.png"))
+        write_matrix_as_tsv(self.W, self.topic_names, self.class_names, w_tsv_path)
+        write_matrix_as_tsv(self.H, self.sample_names, self.topic_names, h_tsv_path)
 
-        #plt.ioff()
+        if 'write_charts' in self.args and self.args['write_charts']:
+
+            print "Writing NMF charts..."
+
+            color_map = "viridis"
+            if 'heatmap_colormap' in self.args:
+                color_map = self.args['heatmap_colormap']
+
+            write_tsv_as_barplot(w_tsv_path, P.join(out_dir_path, "nmf_W_barplot.png"))
+
+            run_tsv_to_heatmap(w_tsv_path, P.join(out_dir_path, "nmf_W_heatmap.png"), color_map)
+            run_tsv_to_heatmap(h_tsv_path, P.join(out_dir_path, "nmf_H_heatmap.png"), color_map)
 
         return

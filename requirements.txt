@@ -13,3 +13,4 @@ scipy==1.0.0
 seaborn==0.8.1
 six==1.11.0
 subprocess32==3.2.7
+flask==0.12

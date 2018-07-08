@@ -1,9 +1,28 @@
-ccf_algorithm: ccube
-matrix_algorithm: nmf
+# REQUIRED. String describing the CCF algorithm to be used. Possible options are:
+#           pyclone, ccube, phylowgs
+ccf_algorithm: phylowgs
 
-input_dir: ../for_project_10/data
+# OPTIONAL. Boolean setting for whether or not to use multicore processing when running the CCF algorithm. If
+#           num_cpu is not set, this optional will automatically detect the number of CPUs.
+#multicore: True
+
+# OPTIONAL. Integer setting for number of cores to use. 'multicore' must be set to 'True' for this option to do anything.
+#           It is recommended you set this option to the number of physical cores your processor has, and NOT the
+#           number of virtual cores (hyperthreading).
+#num_cpu: 16
+
+# REQUIRED. String path to the input directory. Consult documentation for format of input files.
+input_dir: ../for_project_10
+#input_dir: ../Simulations_August
+
+# REQUIRED. String path to the output directory. Consult documentation for description of output files.
 output_dir: ./out
 
+# OPTIONAL: Boolean specifying whether or not to run error analysis on results of CCF analysis:
+error_analysis: True
+
+# REQUIRED. The parameters below describe the settings to run the PyClone analysis with. A description of these values
+#           can be found in the PyClone documentation at: https://bitbucket.org/aroth85/pyclone/wiki/Usage
 pyclone_params:
   base_measure_params: {alpha: 1, beta: 1}
   beta_binomial_precision_params:
@@ -14,7 +33,7 @@ pyclone_params:
     prior: {rate: 0.001, shape: 1.0}
     value: 1.0
   density: pyclone_beta_binomial
-  num_iters: 100
+  num_iters: 2000
   samples:
     SAMPLE_NAME: 
       error_rate: 0.001
@@ -23,17 +42,51 @@ pyclone_params:
   trace_dir: trace
   working_dir: WORKING_DIR
 
+# REQUIRED: The parameters below describe the settings to run the CCube analysis with. A description of these values
+#           can be found in the CCube documentation at: https://github.com/keyuan/ccube
 ccube_params:
-  parameters for ccube here
+  numOfClusterPool: '1:10'
+  maxSnv: 1000000
 
+# REQUIRED: The parameters below describe the settings to run the PhyloWGS analysis with. A description of these values
+#           can be found in the PhyloWGS documentation at: https://github.com/morrislab/phylowgs
 phylowgs_params:
-  parameters for phylowgs here
+  cnv_file_format: battenberg
+  vcf_file_format: pcawg_consensus
+  # NOTE: These values were left at the level we used to run a quick and dirty analysis. To run a proper analysis,
+  #       please change the below values to 1000 / 2500 / 5000.
+  BURNIN_SAMPLES: 5
+  MCMC_SAMPLES: 5
+  MH_ITERATIONS: 100
+  # NOTE: You can set the PhyloWGS temp dir to a RAM backed tmpfs on Linux, but this yields less than 10% performance
+  #       increase, so in most cases it's best to leave it disabled.
+  #TMP_DIR: /dev/shm/pwgs_tmp
 
+# REQUIRED: Described parameters for non-negative matrix factorization.
 nmf_params:
-  parameters for nmf here
+  # Number of topics/signatures to be extracted when using NMF. This would be the number of columns in the W matrix.
+  num_topics: 20
+  # Boolean option controlling whether or not to write the charts associated with NMF. This includes a heatmap describing
+  # the exposure of each signature to each class, a heatmap describing the exposure of each sample to each signature, and
+  # a barplot describing the exposure of each signature to each class.
+  write_charts: True
+  # The matplotlib colormap to use for the heatmaps. List of possible values is given here:
+  # https://matplotlib.org/examples/color/colormaps_reference.html
+  heatmap_colormap: 'viridis'
 
+# REQUIRED: Described parameters for Latent Dirichlet allocation.
 lda_params:
-  parameters for nmf here
+  # Number of topics/signatures to be extracted when using LDA.
+  num_topics: 20
+  # Boolean option controlling whether or not to write the charts associated with LDA. This includes a heatmap describing
+  # the exposure of each signature to each class, a heatmap describing the exposure of each sample to each signature, and
+  # a barplot describing the exposure of each signature to each class.
+  write_charts: True
+  # The matplotlib colormap to use for the heatmaps. List of possible values is given here:
+  # https://matplotlib.org/examples/color/colormaps_reference.html
+  heatmap_colormap: 'viridis'
 
+# REQUIRED. Describes parameters for the bin10 classifier that mutations are sorted into.
 classifier_params:
-  bin10 classifier parameters here
+  # Integer number of bins the mutations should be sorted into.
+  num_classes: 10

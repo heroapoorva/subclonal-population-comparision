@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <title>Cancer Cell Pipeline</title>
+ 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+ 
+<body style="padding-bottom: 50px;">
+
+        <div class="container">
+            <div class="header">
+                <h2 class="text-dark" style="margin-top: 2em">Cancer Cell Analysis Pipeline</h2>
+                <ul class="nav nav-tabs" style="margin-top: 2em">
+                    <li><a class="nav-link active" data-toggle="tab" href="#output">Pipeline Output</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#alg_error">Algorithm Error</a></li>
+                </ul>
+
+                <div class="tab-content" style="margin-top: 1em">
+                    <div id="output" class="tab-pane active">
+                        <figure class="figure">
+                            <img src="../../out/nmf_H_heatmap.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <img src="../../out/nmf_W_heatmap.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <figcaption class="figure-caption">NMF Heatmaps</figcaption>
+                        </figure> 
+
+                        <figure class="figure">
+                            <img src="../../out/lda_sample_to_signature_exposure_heatmap.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <img src="../../out/lda_signature_to_band_exposure_heatmap.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <figcaption class="figure-caption">LDA Heatmaps</figcaption>
+                        </figure> 
+                    </div>
+
+                    <div id="alg_error" class="tab-pane">
+                        <figure class="figure">
+                            <img src="../../out/pyclone 10 bins error.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <img src="../../out/pyclone scatter plot.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <figcaption class="figure-caption">PyClone Error</figcaption>
+                        </figure> 
+
+                        <figure class="figure">
+                            <img src="../../out/ccube 10 bins error.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <img src="../../out/ccube scatter plot.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <figcaption class="figure-caption">CCube Error</figcaption>
+                        </figure> 
+                        
+                        <figure class="figure">
+                            <img src="../../out/phylowgs 10 bins error.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <img src="../../out/phylowgs scatter plot.png" class="figure-img img-fluid rounded" alt="Image not found!">
+                            <figcaption class="figure-caption">Phylowgs Error</figcaption>
+                        </figure>                        
+                    </div>
+
+
+                </div>
+
+                
+
+
+            </div>
+        </div>
+
+
+
+        
+        
+
+</body>
+ 
+</html>

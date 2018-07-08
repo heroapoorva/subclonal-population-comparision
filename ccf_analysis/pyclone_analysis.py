@@ -16,12 +16,16 @@ INPUT_TSV_HEADER = ["mutation_id", "ref_counts", "var_counts", "normal_cn", "min
 OUTPUT_TSV_NAME = "%s.cellular_prevalence.tsv"
 OUTPUT_BZ2_NAME = OUTPUT_TSV_NAME + ".bz2"
 
-DEBUG = True
+# Will use cached output from previous PyClone runs when this is true.
+DEBUG = False
+# Will cache output of PyClone for future runs when this is set to True. To use cached output, set DEBUG flag to True.
 SAVE_OUTPUT = False
 
 
+# Class to run PyClone on a given CCFInputSample, make PyClone input, and read PyClone output.
 class PycloneAnalysis:
 
+    # args is a dictionary holding PyClone parameters from pipeline_config.yml
     def __init__(self, args):
         self.args = args
         self.verify_args()
@@ -31,13 +35,15 @@ class PycloneAnalysis:
     def verify_args(self):
         return
 
+    # Make a PyClone specific mutation name string.
     @staticmethod
     def mutation_name_to_string(sample, mutation):
         return "%s:chr%s:%s" % (sample.name, mutation.chromosome, mutation.position)
 
+    # Create input TSV for PyClone
     def create_input_tsv(self, sample):
-        DirectoryManager.clean_temp_dir()
-        temp_dir = DirectoryManager.get_temp_dir()
+        DirectoryManager.clean_temp_dir(sample.name)
+        temp_dir = DirectoryManager.get_temp_dir(sample.name)
         input_tsv_name = "pyclone_input_%s.tsv" % sample.name
         input_tsv_path = P.abspath(P.join(temp_dir, input_tsv_name))
         with open(input_tsv_path, "wb+") as tsv_file:
@@ -58,6 +64,8 @@ class PycloneAnalysis:
 
         return input_tsv_path
 
+    # Run PyClone on input TSV using given config. PyClone output can be cached to speed up debugging. See DEBUG and
+    # SAVE_OUTPUT flags.
     @staticmethod
     def run_pyclone(input_tsv_path, pyclone_config):
 
@@ -124,6 +132,7 @@ class PycloneAnalysis:
         decompress_bz2(trace_file_zip, trace_file_tsv)
         return trace_file_tsv
 
+    # Read output of PyClone, and assign each mutation its estimated CCF.
     def read_pyclone_output(self, sample, output_tsv):
         with open(output_tsv, "r") as tsv_file:
             reader = csv.reader(tsv_file, delimiter='\t')
@@ -151,9 +160,10 @@ class PycloneAnalysis:
                     mutation.cellular_prevalence = modes_dict[mutation_name]
         return
 
+    # Run a PyClone analysis on given CCFInputSample
     def run_analysis(self, sample):
         input_tsv_path = self.create_input_tsv(sample)
-        temp_dir = DirectoryManager.get_temp_dir()
+        temp_dir = DirectoryManager.get_temp_dir(sample.name)
 
         pyclone_config = copy.deepcopy(self.args)
         pyclone_config['samples'][sample.name] = pyclone_config['samples']['SAMPLE_NAME']

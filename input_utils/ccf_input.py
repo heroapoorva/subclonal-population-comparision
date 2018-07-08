@@ -1,6 +1,7 @@
 import csv
 
 
+# Data class holding data for each mutation
 class MutationData:
 
     OUT_FILE_EXT = "_mutations.tsv"
@@ -20,6 +21,7 @@ class MutationData:
         self.ref_count = ref_count
         self.cellular_prevalence = cellular_prevalence or 0.0
 
+    # Save mutation from CCFInputSample to a file
     @staticmethod
     def save_mutation_data(sample, out_file_path):
         with open(out_file_path, "wb+") as out_file:
@@ -38,6 +40,7 @@ class MutationData:
                     writer.writerow(row)
         return
 
+    # Load a list of mutations from an intermediate data file.
     @staticmethod
     def load_mutation_data(in_file_path):
         mutations = []
@@ -57,6 +60,8 @@ class MutationData:
         return mutations
 
 
+# Describes the Chromosome Segments of an input sample. Each segment holds a list of mutations that belong in that
+# mutation
 class ChromosomeSegment:
 
     def __init__(self, chromosome, start, end, copy_number, minor_cn, major_cn, cellular_prevalence, ccf):
@@ -74,13 +79,33 @@ class ChromosomeSegment:
         self.mutations.append(mutation)
 
 
+# Object which will hold all data for each sample, including segment data, mutation data, path to Battenberg file, and
+# path to VCF file.
 class CCFInputSample:
 
-    def __init__(self, name, purity):
+    def __init__(self, name, purity, bb_file_path, vcf_file_path):
         self.name = name
         self.purity = purity
         self.chromosome_segments = []
+        self.bb_file_path = bb_file_path
+        self.vcf_file_path = vcf_file_path
         return
 
+    def find_segment_index(self, segment):
+        found_index = -1
+        for current_index in range(len(self.chromosome_segments) - 1, -1, -1):
+            current_segment = self.chromosome_segments[current_index]
+            if current_segment.chromosome == segment.chromosome and \
+                    current_segment.start == segment.start and \
+                    current_segment.end == segment.end:
+                found_index = current_index
+        return found_index
+
+    # When adding segments, overwrite an existing segment if it has same chromosome #, start, and end. This will work
+    # around glitches in the input data where we are given identical segments with different CCF's.
     def add_segment(self, segment):
-        self.chromosome_segments.append(segment)
+        idx = self.find_segment_index(segment)
+        if idx == -1:
+            self.chromosome_segments.append(segment)
+        else:
+            self.chromosome_segments[idx] = segment

@@ -3,6 +3,9 @@ library(ccube)
 library(foreach)
 
 sample_purity = SAMPLE_PURITY
+numOfClusterPool = NUMOFCLUSTERPOOL
+maxSnv = MAXSNV
+
 ssm = read.table(file = 'ccube_input.tsv', sep = '\t', header = TRUE)
 
 RunCcubePipeline(sampleName = NULL,
@@ -12,9 +15,9 @@ RunCcubePipeline(sampleName = NULL,
                  runQC = T,
                  runAnalysisSnap = T,
                  purity = sample_purity,
-                 numOfClusterPool = 1:10,
+                 numOfClusterPool = numOfClusterPool,
                  numOfRepeat = NULL,
-                 maxSnv=1000000,
+                 maxSnv=maxSnv,
                  multiCore = F,
                  writeOutput = T,
                  basicFormats = T,

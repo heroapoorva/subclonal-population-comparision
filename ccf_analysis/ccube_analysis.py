@@ -24,17 +24,24 @@ INPUT_TSV_HEADER = [
     "purity",
 ]
 
-DEBUG = True
+DEBUG = False
 SAVE_OUTPUTS = False
 
 CLUSTERS_FILE_NAME = "sample1_subclonal_structure.txt"
 MUTATIONS_ASSIGNMENTS_FILE_NAME = "sample1_mutation_assignments.txt"
 
 
+# This class contains all code to run CCube, give it input, and read the output. Main entrypoint is run_analysis(),
+# which takes a CCFInputSample object as input. All output is placed within the same CCFInputSample object. Note that
+# since CCube is an R program, this class will copy the R script run_ccube.r located in the same directory as this file,
+# and then it will execute it using Rscript to run CCube.
 class CCubeAnalysis:
 
+    # Constructor for CCubeAnalysis. args is a dictionary of CCube parameters taken from pipeline_config.yml
     def __init__(self, args):
         self.args = args
+        self.maxSnv = args["maxSnv"]
+        self.numOfClusterPool = args["numOfClusterPool"]
         self.verify_args()
         return
 
@@ -42,10 +49,12 @@ class CCubeAnalysis:
     def verify_args(self):
         return
 
+    # Computes name of a mutation
     @staticmethod
     def mutation_name_to_string(mutation):
         return "%s_%s" % (mutation.chromosome, mutation.position)
 
+    # Calculate VAF from var_count and ref_count
     @staticmethod
     def calc_vaf(var_count, ref_count):
         v_count = float(var_count)
@@ -55,8 +64,9 @@ class CCubeAnalysis:
         else:
             return str(r_count / v_count)
 
+    # Create input TSV for CCube. TSV format is described in INPUT_TSV_HEADER
     def create_input_tsv(self, sample, temp_dir):
-        DirectoryManager.clean_temp_dir()
+        DirectoryManager.clean_temp_dir(sample.name)
         input_tsv_name = "ccube_input.tsv"
         input_tsv_path = P.abspath(P.join(temp_dir, input_tsv_name))
         with open(input_tsv_path, "wb+") as tsv_file:
@@ -85,11 +95,14 @@ class CCubeAnalysis:
 
         return input_tsv_path
 
+    # Gets CCube output directory from the directory it was working in.
     @staticmethod
     def get_output_dir_from_temp_dir(temp_dir):
         out_dir = P.join(temp_dir, "ccube_res/sample1")
         return P.realpath(out_dir)
 
+    # Runs CCube by executing Rscript run_ccube.r in the shell. Working dir is set to temp dir. Outputs of CCube are
+    # automatically unzipped for easier processing later.
     def run_ccube(self, working_dir):
         cmd_string = "Rscript run_ccube.r"
         subprocess.call(cmd_string, shell=True, cwd=working_dir)
@@ -131,6 +144,7 @@ class CCubeAnalysis:
         shutil.copytree(sample_test_dir, out_dir)
         return
 
+    # Gets absolute path of run_ccube.r, which is used to run CCube
     @staticmethod
     def get_r_script_path():
         r_script_path = P.abspath(__file__)
@@ -139,15 +153,20 @@ class CCubeAnalysis:
         r_script_path = P.realpath(r_script_path)
         return r_script_path
 
+    # Gets path to run_ccube.r, and populates the placeholder variables within the file.
     def get_r_script(self, sample_purity):
         r_script_path = self.get_r_script_path()
         with open(r_script_path, "r") as r_script_file:
             r_script = r_script_file.read()
             r_script = r_script.replace("SAMPLE_PURITY", sample_purity)
+            r_script = r_script.replace("MAXSNV", str(self.maxSnv))
+            r_script = r_script.replace("NUMOFCLUSTERPOOL", str(self.numOfClusterPool))
+
             return r_script
 
+    # Run the CCube analysis on a given CCFInputSample. Output is saved in the same object.
     def run_analysis(self, sample):
-        temp_dir = DirectoryManager.get_temp_dir()
+        temp_dir = DirectoryManager.get_temp_dir(sample.name)
         input_tsv_path = self.create_input_tsv(sample, temp_dir)
 
         # copy over R script we will use
@@ -174,6 +193,7 @@ class CCubeAnalysis:
 
         return
 
+    # Read clusters from CCube output into a dictionary.
     @staticmethod
     def read_clusters(cluster_defs_path):
         clusters = {}
@@ -193,6 +213,7 @@ class CCubeAnalysis:
 
         return highest_cluster_id, clusters
 
+    # Read cluster assignments from CCube output.
     @staticmethod
     def read_cluster_assignments(cluster_assignments_path, clusters, highest_cluster_id):
         cluster_assignments = {}
@@ -215,6 +236,7 @@ class CCubeAnalysis:
 
         return cluster_assignments
 
+    # Read CCube output, and store each mutation's computed CCF in its corresponding MutationData object.
     def read_ccube_output(self, sample, working_dir):
         out_dir = self.get_output_dir_from_temp_dir(working_dir)
 

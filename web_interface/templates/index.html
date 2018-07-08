@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <title>Cancer Cell Pipeline</title>
+ 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script src="../static/js/form_data.js"></script>
+</head>
+ 
+<body style="padding-bottom: 50px;">
+ 
+    <div class="container">
+        <div class="header">
+            <h2 class="text-dark" style="margin-top: 2em">Cancer Cell Analysis Pipeline</h3>
+        </div>
+    </div>
+
+    <!------------------------------------------------------------------------------------------------------------>
+    <!--------------------------------------------   CCF TABS   -------------------------------------------------->
+    <!------------------------------------------------------------------------------------------------------------>
+
+    <div class="container" style="margin-top: 3em">
+      
+        <p class="text-dark">Choose the CCF algorithm you wish to use, and set the relevant parameters.</p>
+
+        <form id="data_select" style="margin-top: 2em">
+            <div class="form-row">
+                <div class="checkbox">
+                  <label><input id="inter_data" type="checkbox" value="">Use intermediate CCF data</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="checkbox">
+                  <label><input id="classified_data" type="checkbox" value="">Use pre-classified data</label>
+                </div>
+            </div>
+        </form>
+
+        <ul class="nav nav-tabs" style="margin-top: 2em">
+          <li><a class="nav-link active" data-toggle="tab" href="#pyclone_args">PyClone</a></li>
+          <li><a class="nav-link" data-toggle="tab" href="#ccube_args">CCube</a></li>
+          <li><a class="nav-link" data-toggle="tab" href="#phylowgs_args">Phylowgs</a></li>
+        </ul>
+      
+        <div class="tab-content" style="margin-top: 1em">
+
+          <div id="pyclone_args" class="tab-pane active">
+
+                <form id="pyclone_form">
+                    <div class="form-row">
+                        <h5>Base Measure Parameters</h5>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                        <label for="alpha">Alpha</label>
+                        <input type="text" class="form-control" id="alpha" value="1">
+                        </div>
+                        <div class="form-group col-md-6">
+                        <label for="beta">Beta</label>
+                        <input type="text" class="form-control" id="beta" value="1">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: 1em">
+                        <h5>Beta Binomial Precision Values</h5>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                        <label for="pr_rate">Prior Rate</label>
+                        <input type="text" class="form-control" id="pr_rate" value="0.001">
+                        </div>
+                        <div class="form-group col-md-3">
+                        <label for="pr_shape">Prior Shape</label>
+                        <input type="text" class="form-control" id="pr_shape" value="1.0">
+                        </div>
+                        <div class="form-group col-md-3">
+                        <label for="prop_prec">Proposal Precision</label>
+                        <input type="text" class="form-control" id="prop_prec" value="0.01">
+                        </div>
+                        <div class="form-group col-md-3">
+                        <label for="value">Value</label>
+                        <input type="text" class="form-control" id="value" value="1000">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: 1em">
+                        <h5>Concentration</h5>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                        <label for="con_pr_rate">Prioir Rate</label>
+                        <input type="text" class="form-control" id="con_pr_rate" value="0.001">
+                        </div>
+                        <div class="form-group col-md-4">
+                        <label for="con_pr_shape">Prior Shape</label>
+                        <input type="text" class="form-control" id="con_pr_shape" value="1.0">
+                        </div>
+                        <div class="form-group col-md-4">
+                        <label for="con_val">Value</label>
+                        <input type="text" class="form-control" id="con_val" value="1.0">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: 1em">
+                        <div class="form-group col-md-6">
+                        <label for="density">Density</label>
+                        <select id="density" class="form-control">
+                            <option selected>PyClone Beta Binomial</option>
+                            <option>PyClone Binomial</option>
+                        </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                        <label for="iters">Iterations</label>
+                        <input type="text" class="form-control" id="iters" value="1000">
+                        </div>
+                    </div>
+                </form>
+
+
+          </div>
+          
+          <div id="ccube_args" class="tab-pane">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                <label for="cluster">Size of Cluster Pool</label>
+                <input type="text" class="form-control" id="cluster" value="10">
+                </div>
+                <div class="form-group col-md-6">
+                <label for="maxSNV">Max SNV</label>
+                <input type="text" class="form-control" id="maxSNV" value="1,000,000">
+                </div>
+            </div>
+          </div>
+
+          <div id="phylowgs_args" class="tab-pane">
+            
+            <form id="phylowgs_form">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                    <label for="burnin">Burnin Sample Count</label>
+                    <input type="text" class="form-control" id="burnin" value="5">
+                    </div>
+                    <div class="form-group col-md-4">
+                    <label for="mcmc">MCMC Sample Count</label>
+                    <input type="text" class="form-control" id="mcmc" value="5">
+                    </div>
+                    <div class="form-group col-md-4">
+                    <label for="mh_iters">MH Iterations</label>
+                    <input type="text" class="form-control" id="mh_iters" value="100">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                    <label for="cnv_format">CNV File Format</label>
+                    <select id="cnv_format" class="form-control">
+                        <option selected>Battenberg</option>
+                    </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                    <label for="vcf_format">MCMC Sample Count</label>
+                    <select id="vcf_format" class="form-control">
+                        <option selected>PCAWG Consensus</option>
+                    </select>
+                    </div>
+                </div>
+            </form>
+
+          </div>
+        </div>
+    </div>
+
+    <!------------------------------------------------------------------------------------------------------------>
+    <!--------------------------------------------   MATRIX PARAMS    -------------------------------------------->
+    <!------------------------------------------------------------------------------------------------------------>
+    
+    <div class="container" style="margin-top: 5em">
+        <p class="text-dark">Set classification and matrix factorisation parameters.</p>
+        
+        <div class="form-row">
+            <div class="form-group col-md-4">
+            <label for="nmf_topics">NMF Num of Topics</label>
+            <input type="text" class="form-control" id="nmf_topics" value="1">
+            </div>
+            <div class="form-group col-md-4">
+            <label for="lda_topics">LDA Num of Topics</label>
+            <input type="text" class="form-control" id="lda_topics" value="1">
+            </div>
+            <div class="form-group col-md-4">
+            <label for="classifier_classes">Number of Classification Classes</label>
+            <input type="text" class="form-control" id="classifier_classes" value="1">
+            </div>
+        </div>
+
+    </div>
+
+    <!------------------------------------------------------------------------------------------------------------>
+    <!--------------------------------------------   SUBMIT   ---------------------------------------------------->
+    <!------------------------------------------------------------------------------------------------------------>
+
+    <div class="container" style="margin-top: 3em">
+        <div class="row">
+            <div class="col-md-12">
+                <button id="run_pipeline" type="button" class="btn btn-primary float-right btn-lg">Run Pipeline</button>
+            </div>
+        </div>
+    </div>  
+
+</body>
+ 
+</html>
